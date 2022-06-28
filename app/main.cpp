@@ -1,5 +1,5 @@
-#include "func1.h"
-#include "func2.h"
+#include "lib/func1/func1.h"
+#include "lib/func2/func2.h"
 
 #include <bits/stdc++.h>
 
