@@ -17,3 +17,5 @@ http_archive(
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
 bazel_skylib_workspace()
+
+register_toolchains("//bazel/rules/cxx:toolchain")

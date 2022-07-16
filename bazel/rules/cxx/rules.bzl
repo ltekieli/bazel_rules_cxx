@@ -12,8 +12,10 @@ def _cxx_compile(ctx, src, hdrs, out):
     args.add("-iquote", ".")
     args.add(src)
 
+    toolchain = ctx.toolchains["//bazel/rules/cxx:cxx_toolchain_type"]
+
     ctx.actions.run(
-        executable = "g++",
+        executable = toolchain.compiler,
         outputs = [out],
         inputs = [src] + hdrs,
         arguments = [args],
@@ -26,8 +28,10 @@ def _cxx_archive(ctx, objs, out):
     args.add("crs", out)
     args.add_all(objs)
 
+    toolchain = ctx.toolchains["//bazel/rules/cxx:cxx_toolchain_type"]
+
     ctx.actions.run(
-        executable = "ar",
+        executable = toolchain.archiver,
         outputs = [out],
         inputs = objs,
         arguments = [args],
@@ -37,11 +41,14 @@ def _cxx_archive(ctx, objs, out):
 
 def _cxx_link(ctx, objs, out):
     args = ctx.actions.args()
+    args.add("-static")
     args.add("-o", out)
     args.add_all(objs)
 
+    toolchain = ctx.toolchains["//bazel/rules/cxx:cxx_toolchain_type"]
+
     ctx.actions.run(
-        executable = "g++",
+        executable = toolchain.compiler,
         outputs = [out],
         inputs = objs,
         arguments = [args],
@@ -118,6 +125,7 @@ cxx_static_library = rule(
         ),
     },
     doc = "Builds a static library from C++ source code",
+    toolchains = ["//bazel/rules/cxx:cxx_toolchain_type"],
 )
 
 def _cxx_binary_impl(ctx):
@@ -150,4 +158,5 @@ cxx_binary = rule(
     },
     doc = "Builds an executable program from C++ source code",
     executable = True,
+    toolchains = ["//bazel/rules/cxx:cxx_toolchain_type"],
 )
