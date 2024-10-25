@@ -9,6 +9,9 @@ GENERIC_ENV = {
     "PWD": "/proc/self/cwd",
 }
 
+HEADER_EXTENSIONS = [".h"]
+SOURCE_EXTENSIONS = [".cpp"]
+
 def _cxx_create_dir(ctx, out):
     args = ctx.actions.args()
     args.add("-p", out.path)
@@ -96,7 +99,7 @@ def _collect_headers(ctx):
         if src.basename.endswith(".h"):
             private_hdrs.append(src)
 
-   return hdrs, private_hdrs
+    return hdrs, private_hdrs
 
 def _compile_sources(ctx, hdrs):
     # Compile every source file, providing all collected headers.
@@ -149,11 +152,11 @@ cxx_static_library = rule(
     _cxx_static_library_impl,
     attrs = {
         "hdrs": attr.label_list(
-            allow_files = [".h"],
+            allow_files = HEADER_EXTENSIONS,
             doc = "Public header files for this static library",
         ),
         "srcs": attr.label_list(
-            allow_files = [".cpp", ".h"],
+            allow_files = SOURCE_EXTENSIONS + HEADER_EXTENSIONS,
             doc = "Source files to compile for this binary",
         ),
         "deps": attr.label_list(
@@ -185,7 +188,7 @@ cxx_binary = rule(
     _cxx_binary_impl,
     attrs = {
         "srcs": attr.label_list(
-            allow_files = [".cpp", ".h"],
+            allow_files = SOURCE_EXTENSIONS + HEADER_EXTENSIONS,
             doc = "Source files to compile for this binary",
         ),
         "deps": attr.label_list(
@@ -218,7 +221,7 @@ cxx_test = rule(
     _cxx_test_impl,
     attrs = {
         "srcs": attr.label_list(
-            allow_files = [".cpp", ".h"],
+            allow_files = SOURCE_EXTENSIONS + HEADER_EXTENSIONS,
             doc = "Source files to compile for this binary",
         ),
         "deps": attr.label_list(
