@@ -5,6 +5,10 @@ CxxInfo = provider(
     },
 )
 
+GENERIC_ENV = {
+    "PWD": "/proc/self/cwd",
+}
+
 def _cxx_compile(ctx, src, hdrs, out):
     args = ctx.actions.args()
     args.add("-c")
@@ -20,6 +24,7 @@ def _cxx_compile(ctx, src, hdrs, out):
         inputs = [src] + hdrs,
         arguments = [args],
         mnemonic = "CxxCompile",
+        env = GENERIC_ENV,
         use_default_shell_env = True,
     )
 
@@ -36,6 +41,7 @@ def _cxx_archive(ctx, objs, out):
         inputs = objs,
         arguments = [args],
         mnemonic = "CxxArchive",
+        env = GENERIC_ENV,
         use_default_shell_env = True,
     )
 
@@ -53,6 +59,7 @@ def _cxx_link(ctx, objs, out):
         inputs = objs,
         arguments = [args],
         mnemonic = "CxxLink",
+        env = GENERIC_ENV,
         use_default_shell_env = True,
     )
 
