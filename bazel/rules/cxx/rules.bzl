@@ -25,7 +25,7 @@ def _cxx_compile(ctx, src, hdrs, out):
 
 def _cxx_archive(ctx, objs, out):
     args = ctx.actions.args()
-    args.add("crs", out)
+    args.add("rcsD", out)
     args.add_all(objs)
 
     toolchain = ctx.toolchains["//bazel/rules/cxx:cxx_toolchain_type"]
