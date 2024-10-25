@@ -96,7 +96,7 @@ def _collect_headers(ctx):
         if src.basename.endswith(".h"):
             private_hdrs.append(src)
 
-    return hdrs, private_hdrs
+   return hdrs, private_hdrs
 
 def _compile_sources(ctx, hdrs):
     # Compile every source file, providing all collected headers.
@@ -194,5 +194,38 @@ cxx_binary = rule(
     },
     doc = "Builds an executable program from C++ source code",
     executable = True,
+    toolchains = ["//bazel/rules/cxx:cxx_toolchain_type"],
+)
+
+def _cxx_test_impl(ctx):
+    hdrs, private_hdrs = _collect_headers(ctx)
+    objs = _compile_sources(ctx, hdrs.to_list() + private_hdrs)
+    objs += depset(transitive = [dep[CxxInfo].archives for dep in ctx.attr.deps]).to_list()
+
+    executable = ctx.actions.declare_file(ctx.label.name)
+    _cxx_link(
+        ctx,
+        objs = objs,
+        out = executable,
+    )
+
+    return [DefaultInfo(
+        files = depset([executable]),
+        executable = executable,
+    )]
+
+cxx_test = rule(
+    _cxx_test_impl,
+    attrs = {
+        "srcs": attr.label_list(
+            allow_files = [".cpp", ".h"],
+            doc = "Source files to compile for this binary",
+        ),
+        "deps": attr.label_list(
+            providers = [CxxInfo],
+        ),
+    },
+    doc = "Builds a test program from C++ source code",
+    test = True,
     toolchains = ["//bazel/rules/cxx:cxx_toolchain_type"],
 )
