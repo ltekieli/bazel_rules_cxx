@@ -11,6 +11,17 @@ cxx_binary(
     ],
 )
 
+cxx_binary(
+    name = "main-clone",
+    srcs = [
+        "main.cpp",
+    ],
+    deps = [
+        "//lib/func1",
+        "//lib/func2",
+    ],
+)
+
 cc_binary(
     name = "cc_main",
     srcs = [

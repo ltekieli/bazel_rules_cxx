@@ -9,7 +9,21 @@ GENERIC_ENV = {
     "PWD": "/proc/self/cwd",
 }
 
-def _cxx_compile(ctx, src, hdrs, out):
+def _cxx_create_dir(ctx, out):
+    args = ctx.actions.args()
+    args.add("-p", out.path)
+
+    # TODO: direct mkdir usage
+    ctx.actions.run(
+        executable = "mkdir",
+        outputs = [out],
+        arguments = [args],
+        mnemonic = "CxxCreateDir",
+        env = GENERIC_ENV,
+        use_default_shell_env = True,
+    )
+
+def _cxx_compile(ctx, src, hdrs, out, obj_dir):
     args = ctx.actions.args()
     args.add("-c")
     args.add("-o", out)
@@ -28,7 +42,7 @@ def _cxx_compile(ctx, src, hdrs, out):
     ctx.actions.run(
         executable = toolchain.compiler,
         outputs = [out],
-        inputs = [src] + hdrs,
+        inputs = [src, obj_dir] + hdrs,
         arguments = [args],
         mnemonic = "CxxCompile",
         env = GENERIC_ENV,
@@ -88,12 +102,19 @@ def _compile_sources(ctx, hdrs):
     objs = []
     for src in ctx.files.srcs:
         if src.basename.endswith(".cpp"):
-            obj = ctx.actions.declare_file(src.basename + ".pic.o")
+            obj_dir = ctx.actions.declare_directory("_cxx_objs/" + ctx.label.name)
+            _cxx_create_dir(
+                ctx,
+                out = obj_dir,
+            )
+
+            obj = ctx.actions.declare_file(obj_dir.path + "/" + src.basename.removesuffix("." + src.extension) + ".pic.o")
             _cxx_compile(
                 ctx,
                 src = src,
                 hdrs = hdrs,
                 out = obj,
+                obj_dir = obj_dir,
             )
             objs.append(obj)
 
