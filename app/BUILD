@@ -27,6 +27,9 @@ cc_binary(
     srcs = [
         "main.cpp",
     ],
+    defines = {
+        "RULES_CC": 1,
+    },
     deps = [
         "//lib/func1:cc_func1",
         "//lib/func2:cc_func2",

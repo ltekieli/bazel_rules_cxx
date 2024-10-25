@@ -89,13 +89,14 @@ def _collect_headers(ctx):
     hdrs = depset(
         direct = ctx.files.hdrs if hasattr(ctx.files, "hdrs") else [],
         transitive = [dep[CxxInfo].hdrs for dep in ctx.attr.deps],
-    ).to_list()
+    )
 
+    private_hdrs = []
     for src in ctx.files.srcs:
         if src.basename.endswith(".h"):
-            hdrs.append(src)
+            private_hdrs.append(src)
 
-    return hdrs
+    return hdrs, private_hdrs
 
 def _compile_sources(ctx, hdrs):
     # Compile every source file, providing all collected headers.
@@ -124,8 +125,8 @@ def _compile_sources(ctx, hdrs):
     return objs
 
 def _cxx_static_library_impl(ctx):
-    hdrs = _collect_headers(ctx)
-    objs = _compile_sources(ctx, hdrs)
+    hdrs, private_hdrs = _collect_headers(ctx)
+    objs = _compile_sources(ctx, hdrs.to_list() + private_hdrs)
 
     static_library = ctx.actions.declare_file(ctx.label.name + ".a")
     _cxx_archive(
@@ -139,7 +140,7 @@ def _cxx_static_library_impl(ctx):
             files = depset([static_library]),
         ),
         CxxInfo(
-            hdrs = depset(ctx.files.hdrs, transitive = [dep[CxxInfo].hdrs for dep in ctx.attr.deps]),
+            hdrs = hdrs,
             archives = depset([static_library], transitive = [dep[CxxInfo].archives for dep in ctx.attr.deps]),
         ),
     ]
@@ -164,8 +165,8 @@ cxx_static_library = rule(
 )
 
 def _cxx_binary_impl(ctx):
-    hdrs = _collect_headers(ctx)
-    objs = _compile_sources(ctx, hdrs)
+    hdrs, private_hdrs = _collect_headers(ctx)
+    objs = _compile_sources(ctx, hdrs.to_list() + private_hdrs)
     objs += depset(transitive = [dep[CxxInfo].archives for dep in ctx.attr.deps]).to_list()
 
     executable = ctx.actions.declare_file(ctx.label.name)
