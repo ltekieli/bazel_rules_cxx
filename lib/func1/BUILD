@@ -12,3 +12,16 @@ cxx_static_library(
         "//visibility:public",
     ],
 )
+
+cc_library(
+    name = "cc_func1",
+    srcs = [
+        "func1.cpp",
+    ],
+    hdrs = [
+        "func1.h",
+    ],
+    visibility = [
+        "//visibility:public",
+    ],
+)
