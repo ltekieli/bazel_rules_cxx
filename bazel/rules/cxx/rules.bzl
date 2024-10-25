@@ -13,6 +13,7 @@ def _cxx_compile(ctx, src, hdrs, out):
     args = ctx.actions.args()
     args.add("-c")
     args.add("-o", out)
+    args.add("-fPIC")
     args.add("-iquote", ".")
     args.add(src)
 
@@ -81,7 +82,7 @@ def _compile_sources(ctx, hdrs):
     objs = []
     for src in ctx.files.srcs:
         if src.basename.endswith(".cpp"):
-            obj = ctx.actions.declare_file(src.basename + ".o")
+            obj = ctx.actions.declare_file(src.basename + ".pic.o")
             _cxx_compile(
                 ctx,
                 src = src,
