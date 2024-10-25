@@ -14,6 +14,12 @@ def _cxx_compile(ctx, src, hdrs, out):
     args.add("-c")
     args.add("-o", out)
     args.add("-fPIC")
+    args.add("-frandom-seed=%s" % out.path)
+    args.add("-fno-canonical-system-headers")
+    args.add("-Wno-builtin-macro-redefined")
+    args.add("-D__DATE__=\"redacted\"")
+    args.add("-D__TIMESTAMP__=\"redacted\"")
+    args.add("-D__TIME__=\"redacted\"")
     args.add("-iquote", ".")
     args.add(src)
 
